@@ -23,14 +23,10 @@ import com.android.volley.toolbox.Volley;
 import java.util.HashMap;
 import java.util.Map;
 
-import fri.ep.bookstore.model.Book;
-
 public class BookAddActivity extends Activity {
     private static final String TAG = BookAddActivity.class.getCanonicalName();
     private EditText author, title, price, description;
     private Button button;
-
-    private Book book;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +44,17 @@ public class BookAddActivity extends Activity {
                 addBook();
             }
         });
-
-        book = (Book) getIntent().getSerializableExtra("book");
-
-        if (book != null) {
-            author.setText(book.author);
-            title.setText(book.title);
-            price.setText(String.valueOf(book.price));
-            description.setText(book.description);
-        }
     }
 
     private void addBook() {
         final RequestQueue queue = Volley.newRequestQueue(this);
         final StringRequest stringRequest = new StringRequest(
-                book == null ? Request.Method.POST : Request.Method.PUT,
-                book == null ? BookListActivity.ALL_BOOKS: book.uri,
+                Request.Method.POST,
+                BookListActivity.ALL_BOOKS,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(BookAddActivity.this, "Enry saved.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(BookAddActivity.this, "Entry saved.", Toast.LENGTH_LONG).show();
                         startActivity(new Intent(BookAddActivity.this, BookListActivity.class));
                     }
                 }, new Response.ErrorListener() {
