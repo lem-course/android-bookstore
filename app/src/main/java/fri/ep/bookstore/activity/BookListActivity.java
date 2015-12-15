@@ -23,7 +23,6 @@ import com.google.gson.Gson;
 
 public class BookListActivity extends ListActivity {
 
-    // TODO change it back
     public static final String ALL_BOOKS = "http://192.168.34.106/netbeans/rest-api/books";
     private static final String TAG = BookListActivity.class.getCanonicalName();
 
@@ -42,7 +41,7 @@ public class BookListActivity extends ListActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Toast.makeText(BookListActivity.this, "An error occurred.", Toast.LENGTH_LONG).show();
-                Log.w(TAG, new String(error.networkResponse.data));
+                Log.w(TAG, "Exception: " + error.getLocalizedMessage());
             }
         });
 
@@ -67,30 +66,20 @@ public class BookListActivity extends ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_insert) {
-            startActivity(new Intent(this, BookAddActivity.class));
-            return true;
-        } else if (id == R.id.action_insert) {
-            final Intent intent = new Intent(this, BookAddActivity.class);
-            startActivity(intent);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_insert:
+                startActivity(new Intent(this, BookAddActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final Book book = (Book) getListAdapter().getItem(position);
-        // Toast.makeText(this, "Clicked on " + book, Toast.LENGTH_SHORT).show();
-        // TODO remove below
         final Intent intent = new Intent(this, BookDetailActivity.class);
         intent.putExtra("uri", book.uri);
-        Log.i(TAG, book.uri);
         startActivity(intent);
     }
 }
