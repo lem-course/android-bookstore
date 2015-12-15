@@ -23,7 +23,8 @@ import com.google.gson.Gson;
 
 public class BookListActivity extends ListActivity {
 
-    public static final String ALL_BOOKS = "http://10.0.2.2/netbeans/rest-api/books";
+    // TODO change it back
+    public static final String ALL_BOOKS = "http://192.168.34.106/netbeans/rest-api/books";
     private static final String TAG = BookListActivity.class.getCanonicalName();
 
     @Override
@@ -73,6 +74,10 @@ public class BookListActivity extends ListActivity {
         if (id == R.id.action_insert) {
             startActivity(new Intent(this, BookAddActivity.class));
             return true;
+        } else if (id == R.id.action_insert) {
+            final Intent intent = new Intent(this, BookAddActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -81,11 +86,11 @@ public class BookListActivity extends ListActivity {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final Book book = (Book) getListAdapter().getItem(position);
-
+        // Toast.makeText(this, "Clicked on " + book, Toast.LENGTH_SHORT).show();
+        // TODO remove below
         final Intent intent = new Intent(this, BookDetailActivity.class);
         intent.putExtra("uri", book.uri);
         Log.i(TAG, book.uri);
         startActivity(intent);
-        // Toast.makeText(this, "Clicked on " + book, Toast.LENGTH_SHORT).show();
     }
 }

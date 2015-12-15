@@ -1,8 +1,9 @@
 package fri.ep.bookstore.model;
 
+import java.io.Serializable;
 import java.util.Locale;
 
-public class Book {
+public class Book implements Serializable {
 
     public String id;
     public String author;

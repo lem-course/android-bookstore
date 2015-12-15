@@ -1,20 +1,36 @@
 package fri.ep.bookstore.activity;
 
-import fri.ep.bookstore.model.Book;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import fri.ep.bookstore.model.Book;
+
 public class BookAddActivity extends Activity {
+    private static final String TAG = BookAddActivity.class.getCanonicalName();
     private EditText author, title, price, description;
+    private Button button;
+
+    private Book book;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +41,54 @@ public class BookAddActivity extends Activity {
         title = (EditText) findViewById(R.id.etTitle);
         price = (EditText) findViewById(R.id.etPrice);
         description = (EditText) findViewById(R.id.etDescription);
+        button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addBook();
+            }
+        });
+
+        book = (Book) getIntent().getSerializableExtra("book");
+
+        if (book != null) {
+            author.setText(book.author);
+            title.setText(book.title);
+            price.setText(String.valueOf(book.price));
+            description.setText(book.description);
+        }
+    }
+
+    private void addBook() {
+        final RequestQueue queue = Volley.newRequestQueue(this);
+        final StringRequest stringRequest = new StringRequest(
+                book == null ? Request.Method.POST : Request.Method.PUT,
+                book == null ? BookListActivity.ALL_BOOKS: book.uri,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(BookAddActivity.this, "Enry saved.", Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(BookAddActivity.this, BookListActivity.class));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(BookAddActivity.this, "An error occurred.", Toast.LENGTH_LONG).show();
+                Log.w(TAG, error.getMessage());
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                final Map<String, String> params = new HashMap<>();
+                params.put("author", author.getText().toString().trim());
+                params.put("title", title.getText().toString().trim());
+                params.put("description", description.getText().toString().trim());
+                params.put("price", price.getText().toString().trim());
+                return params;
+            }
+        };
+
+        queue.add(stringRequest);
     }
 
     @Override
@@ -36,72 +100,6 @@ public class BookAddActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void insert(View v) {
-        try {
-            /*Book book = new Book(0, author.getText().toString(), title.getText().toString(),
-                    description.getText().toString(),
-                    Double.parseDouble(price.getText().toString()), null);
-            new SaveBookAsync(this).execute(book);*/
-        } catch (Exception e) {
-            Toast.makeText(this, "An error occurred: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-    private class SaveBookAsync extends AsyncTask<Book, Void, String> {
-        private final Context context;
-
-        public SaveBookAsync(Context c) {
-            context = c;
-        }
-
-        @Override
-        protected String doInBackground(Book... input) {
-            /*try {
-                HttpClient client = new DefaultHttpClient();
-                HttpPost request = new HttpPost(BookListActivity.ALL_BOOKS);
-                List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-                pairs.add(new BasicNameValuePair("author", input[0].author));
-                pairs.add(new BasicNameValuePair("title", input[0].title));
-                pairs.add(new BasicNameValuePair("description", input[0].description));
-                pairs.add(new BasicNameValuePair("price", String.valueOf(input[0].price)));
-                request.setEntity(new UrlEncodedFormEntity(pairs));
-
-                HttpResponse response = client.execute(request);
-                HttpEntity httpEntity = response.getEntity();
-                JSONObject json = new JSONObject(EntityUtils.toString(httpEntity));
-
-                if (json.getString("status").equals("success")) {
-                    return null;
-                } else {
-                    return json.getString("payload");
-                }
-            } catch (Exception e) {
-                return e.getMessage();
-            }*/
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result == null) {
-                Toast.makeText(context, "Book saved.", Toast.LENGTH_LONG).show();
-                startActivity(new Intent(BookAddActivity.this, BookListActivity.class));
-            } else {
-                Toast.makeText(context, result, Toast.LENGTH_LONG).show();
-            }
-        }
-
     }
 }
